@@ -1,7 +1,92 @@
-download FASTQ format from SRA and convert it to .fa:
+dowload and split sample:
+./fastq-dump --split-3 SRR388809 
 
-zcat sra_data.fastq.gz | awk 'NR%4==1{printf ">%s\n", substr($0,2)}NR%4==2{print}' > sra_data.fa
+index E.coli:
+bwa index ../E.Coli.fa 
 
-bwa index:
+bwa mem alignment: 
+bwa mem ../E.Coli.fa ../SRR388809_1.fastq ../SRR388809_2.fastq > aln-pe.sam
 
-./bwa index /home/stud/s9loschw/Downloads/sra_data.fa
+convert sam file to bam file:
+samtools view -Sb ../bwa-0.7.12/aln-pe.sam > aln-pe.bam
+
+infos:
+samtools flagstat ../bwa-0.7.12/aln-pe.bam
+
+
+2. 128498 + 0 in total (QC-passed reads + QC-failed reads)
+
+3. 29403 + 0 mapped (22.88%:-nan%)
+
+5. 128498 - 29403 unmapped
+128498 + 0 paired in sequencing
+64237 + 0 read1
+64261 + 0 read2
+6. 24701 + 0 properly paired (19.22%:-nan%)
+10. 0 duplicates 
+25305 + 0 with itself and mate mapped
+4098 + 0 singletons (3.19%:-nan%)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+
+8.111697 samtools view -c -F 16 aln-pe.bam 
+7. 16801 samtools view -c -f 16 aln-pe.bam 
+9. samtools view -c -f 64  aln-pe.bam 
+   64237
+
+   
+   
+1. How many reads are in the sample files? (1 P.)
+SRR388809_1 : 64199 
+cat SRR388809_1.fastq | echo $((`wc -l`/4))
+
+SRR388809_2 : 64199
+cat SRR388809_2.fastq | echo $((`wc -l`/4))
+
+
+
+
+2. How many records are in the SAM file? (1 P.)
+samtools flagstat aln-pe.bam
+128491
+
+
+
+3. How many records are mapped? (1 P.)
+samtools flagstat aln-pe.bam
+124143
+
+
+4. How many different reads are mapped? (2 P.)
+128491 samtools view -c -F 259 aln-pe.bam
+
+5. How many reads are unmapped? (1 P.)
+samtools view -c -f 4  aln-pe.bam 
+4348
+
+6. How many records are properly paired? (1 P.)
+samtools flagstat aln-pe.bam
+116633
+
+
+7. How many records are on the strand of the query (the reverse strand)? (1 P.)
+64033
+samtools view -c -f 16 aln-pe.bam 
+
+
+8. How many records are mapped to the forward strand? (1 P.)
+64458
+samtools view -c -F 16 aln-pe.bam 
+
+
+9. How many records are first reads in a pair? (1 P.)
+samtools view -c -f 64  aln-pe.bam 
+64222
+   
+10. How many records are duplicates? (1 P.)
+samtools flagstat aln-pe.bam
+0
+
+11. How many records start between positions 10000 and 20000? (2 P.)
+12. How many records have insertions? (2 P.)
+13. How many records have deletions? (2 P.)
